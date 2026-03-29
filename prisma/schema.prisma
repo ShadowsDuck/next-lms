@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -22,6 +17,9 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  // Relations
+  courses       Course[]
 
   @@unique([email])
   @@map("user")
@@ -73,4 +71,38 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Course {
+  id          String        @id @default(uuid())
+  title       String
+  description String
+  fileKey     String
+  price       Int
+  duration    Int
+  level       CourseLevel   @default(BEGINNER)
+  category    String
+  smallDescription String
+  slug        String        @unique
+  status      CourseStatus  @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  
+  @@map("course")
 }
