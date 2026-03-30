@@ -29,7 +29,7 @@ export const courseSchema = z.object({
   fileKey: z.string().min(1, { message: "File is required" }),
   price: z.coerce.number().min(1, "Price must be a positive number"),
   duration: z.coerce
-    .string()
+    .number()
     .min(1, { message: "Duration must be at least 1 hour" })
     .max(500, { message: "Duration must be at most 500 hours" }),
   level: z.enum(courseLevels, {
@@ -47,4 +47,4 @@ export const courseSchema = z.object({
 });
 
 export type CourseSchemaInput = z.input<typeof courseSchema>;
-export type CourseSchemaOutput = z.output<typeof courseSchema>;
+export type CourseSchemaType = z.infer<typeof courseSchema>;

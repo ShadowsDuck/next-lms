@@ -1,5 +1,6 @@
 "use client";
 
+import { Uploader } from "@/components/file-uploader/Uploader";
 import { RichTextEditor } from "@/components/rich-text-editor/Editor";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -30,18 +31,25 @@ import {
   courseLevels,
   courseSchema,
   CourseSchemaInput,
-  CourseSchemaOutput,
+  CourseSchemaType,
   courseStatus,
 } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, PlusIcon, SparkleIcon } from "lucide-react";
+import { ArrowLeft, Loader2, PlusIcon, SparkleIcon } from "lucide-react";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import slugify from "slugify";
 import { toast } from "sonner";
+import { createCourse } from "./actions";
+import { useTransition } from "react";
+import { tryCatch } from "@/hooks/try-catch";
+import { useRouter } from "next/navigation";
 
 export default function CreateCoursePage() {
-  const form = useForm<CourseSchemaInput, unknown, CourseSchemaOutput>({
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const form = useForm<CourseSchemaInput, unknown, CourseSchemaType>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
       title: "",
@@ -57,20 +65,22 @@ export default function CreateCoursePage() {
     },
   });
 
-  function onSubmit(data: CourseSchemaOutput) {
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as React.CSSProperties,
+  async function onSubmit(values: CourseSchemaType) {
+    startTransition(async () => {
+      const { data: result, error } = await tryCatch(createCourse(values));
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      if (result.status === "success") {
+        toast.success(result.message);
+        form.reset();
+        router.push("/admin/courses");
+      } else if (result.status === "error") {
+        toast.error(result.message);
+      }
     });
   }
 
@@ -198,12 +208,7 @@ export default function CreateCoursePage() {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel>Thumbnail Image</FieldLabel>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Enter course thumbnail image URL"
-                      autoComplete="off"
-                    />
+                    <Uploader value={field.value} onChange={field.onChange} />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -359,8 +364,17 @@ export default function CreateCoursePage() {
               />
             </FieldGroup>
 
-            <Button type="submit">
-              Create Course <PlusIcon className="size-4" />
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
+                <>
+                  Creating...
+                  <Loader2 className="size-4 animate-spin" />
+                </>
+              ) : (
+                <>
+                  Create Course <PlusIcon className="size-4" />
+                </>
+              )}
             </Button>
           </form>
         </CardContent>

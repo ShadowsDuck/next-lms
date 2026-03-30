@@ -1,16 +1,21 @@
-import { LoginForm } from "@/app/(auth)/login/_components/LoginForm";
+import "server-only";
+
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function LoginPage() {
+export async function requireAdmin() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  if (session) {
-    redirect("/");
+  if (!session) {
+    return redirect("/login");
   }
 
-  return <LoginForm />;
+  if (session.user.role !== "admin") {
+    return redirect("/not-admin");
+  }
+
+  return session;
 }

@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -19,7 +20,12 @@ model User {
   accounts      Account[]
 
   // Relations
-  courses       Course[]
+  courses Course[]
+
+  role       String?  @default("user")
+  banned     Boolean? @default(false)
+  banReason  String?
+  banExpires DateTime?
 
   @@unique([email])
   @@map("user")
@@ -35,6 +41,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@unique([token])
   @@index([userId])
@@ -86,23 +94,60 @@ enum CourseStatus {
 }
 
 model Course {
-  id          String        @id @default(uuid())
-  title       String
-  description String
-  fileKey     String
-  price       Int
-  duration    Int
-  level       CourseLevel   @default(BEGINNER)
-  category    String
+  id               String       @id @default(uuid())
+  title            String
+  description      String
+  fileKey          String
+  price            Int
+  duration         Int
+  level            CourseLevel  @default(BEGINNER)
+  category         String
   smallDescription String
-  slug        String        @unique
-  status      CourseStatus  @default(DRAFT)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  slug             String       @unique
+  status           CourseStatus @default(DRAFT)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   // Relations
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  chapters Chapter[]
+
   @@map("course")
+}
+
+model Chapter {
+  id        String   @id @default(uuid())
+  title     String
+  position  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+
+  lessons Lesson[]
+
+  @@map("chapter")
+}
+
+model Lesson {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  thumbnailKey  String?
+  videoKey      String?
+  position      Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId String
+
+  @@map("lesson")
 }

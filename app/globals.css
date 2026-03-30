@@ -196,4 +196,7 @@
     @apply font-sans;
     font-size: 110%;
   }
+  button {
+    @apply cursor-pointer;
+  }
 }
