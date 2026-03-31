@@ -51,6 +51,7 @@ export default async function EditCoursePage({ params }: { params: Params }) {
                 Manage the structure of your course
               </CardDescription>
             </CardHeader>
+
             <CardContent>
               <CourseStructure data={course} />
             </CardContent>
