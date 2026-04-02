@@ -182,7 +182,11 @@ export function EditCourseForm({ data }: iAppProps) {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Thumbnail Image</FieldLabel>
-              <Uploader value={field.value} onChange={field.onChange} />
+              <Uploader
+                value={field.value}
+                onChange={field.onChange}
+                fileTypeAccepted="image"
+              />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

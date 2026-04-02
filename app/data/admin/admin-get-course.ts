@@ -41,20 +41,3 @@ export async function adminGetCourses(courseId: string) {
 export type AdminCourseSingularType = Awaited<
   ReturnType<typeof adminGetCourses>
 >;
-// chapters: {
-//         select: {
-//           id: true,
-//           title: true,
-//           position: true,
-//           lessons: {
-//             select: {
-//               id: true,
-//               title: true,
-//               description: true,
-//               thumbnailKey: true,
-//               videoKey: true,
-//               position: true,
-//             },
-//           },
-//         },
-//       },

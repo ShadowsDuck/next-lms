@@ -29,9 +29,10 @@ interface UploaderState {
 interface iAppProps {
   value?: string;
   onChange?: (value: string) => void;
+  fileTypeAccepted: "image" | "video";
 }
 
-export function Uploader({ value, onChange }: iAppProps) {
+export function Uploader({ value, onChange, fileTypeAccepted }: iAppProps) {
   const fileUrl = useConstructUrl(value || "");
 
   const [fileState, setFileState] = useState<UploaderState>({
@@ -41,9 +42,9 @@ export function Uploader({ value, onChange }: iAppProps) {
     progress: 0,
     isDeleted: false,
     error: false,
-    fileType: "image",
+    fileType: fileTypeAccepted,
     key: value,
-    objectUrl: fileUrl,
+    objectUrl: value ? fileUrl : undefined,
   });
 
   // Handle upload file
@@ -64,7 +65,7 @@ export function Uploader({ value, onChange }: iAppProps) {
           fileName: file.name,
           contentType: file.type,
           size: file.size,
-          isImage: true,
+          isImage: fileTypeAccepted === "image" ? true : false,
         }),
       });
 
@@ -199,7 +200,7 @@ export function Uploader({ value, onChange }: iAppProps) {
         progress: 0,
         uploading: false,
         error: false,
-        fileType: "image",
+        fileType: fileTypeAccepted,
       }));
 
       toast.success("File deleted successfully");
@@ -231,7 +232,7 @@ export function Uploader({ value, onChange }: iAppProps) {
         isDeleted: false,
         error: false,
         objectUrl: URL.createObjectURL(file),
-        fileType: "image",
+        fileType: fileTypeAccepted,
       });
 
       uploadFile(file);
@@ -259,6 +260,7 @@ export function Uploader({ value, onChange }: iAppProps) {
           previewUrl={fileState.objectUrl}
           isDeleting={fileState.isDeleted}
           handleDeleteFile={handleDeleteFile}
+          fileType={fileState.fileType}
         />
       );
     }
@@ -278,12 +280,12 @@ export function Uploader({ value, onChange }: iAppProps) {
   // React-Dropzone configuration
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    accept: {
-      "image/*": [],
-    },
+    accept:
+      fileTypeAccepted === "image" ? { "image/*": [] } : { "video/*": [] },
     maxFiles: 1,
     multiple: false,
-    maxSize: 1024 * 1024 * 5, // 5MB
+    maxSize:
+      fileTypeAccepted === "image" ? 1024 * 1024 * 5 : 1024 * 1024 * 5000, // image 5MB, video 5GB
     onDropRejected: (fileRejections) => {
       rejectedFiles(fileRejections);
     },
