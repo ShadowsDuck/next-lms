@@ -24,6 +24,7 @@ model User {
   // Relations
   courses       Course[]
   enrollments   Enrollment[]
+  lessonProgress LessonProgress[]
 
   role       String?  @default("user")
   banned     Boolean? @default(false)
@@ -155,6 +156,8 @@ model Lesson {
   chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   chapterId String
 
+  lessonProgress LessonProgress[]
+
   @@map("lesson")
 }
 
@@ -180,4 +183,22 @@ model Enrollment {
 
   @@unique([userId, courseId])
   @@map("enrollment")
+}
+
+model LessonProgress {
+  id String @id @default(uuid())
+  completed Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId String
+
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
 }

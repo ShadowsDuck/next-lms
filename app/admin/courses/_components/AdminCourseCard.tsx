@@ -126,7 +126,7 @@ export function AdminCourseCard({ data }: iAppProps) {
   );
 }
 
-function AdminCourseCardSkeleton() {
+export function AdminCourseCardSkeleton() {
   return (
     <Card className="group relative py-0 gap-0 rounded-lg overflow-hidden">
       {/* Absolute dropdown Button Skeleton */}

@@ -6,9 +6,15 @@ interface iAppProps {
   title: string;
   description: string;
   buttonText: string;
+  href: string;
 }
 
-export function EmptyState({ title, description, buttonText }: iAppProps) {
+export function EmptyState({
+  title,
+  description,
+  buttonText,
+  href,
+}: iAppProps) {
   return (
     <div className="flex flex-col flex-1 h-full items-center justify-center rounded-lg border-dashed border p-8 text-center animate-in fade-in-50">
       <div className="flex size-20 items-center justify-center rounded-full bg-primary/10">
@@ -21,7 +27,7 @@ export function EmptyState({ title, description, buttonText }: iAppProps) {
       </p>
 
       <Link
-        href="/admin/courses/create"
+        href={href}
         className={buttonVariants({ size: "lg", className: "px-4" })}
       >
         <PlusCircle className="size-4 mr-1" />
